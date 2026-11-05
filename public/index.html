@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jobs scraper</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">💼 Jobs scraper</div>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="jobs"><span data-i18n="tab.jobs"></span> <span class="count" id="tab-count"></span></button>
+        <button class="tab" data-tab="sources" data-i18n="tab.sources"></button>
+        <button class="tab" data-tab="profile" data-i18n="tab.profile"></button>
+      </nav>
+      <div class="scan">
+        <span id="scan-status" class="muted"></span>
+        <button id="btn-ack" class="btn ghost" data-i18n="btn.ack" data-i18n-title="btn.ack.title"></button>
+        <button id="btn-scan" class="btn primary" data-i18n="btn.scan"></button>
+        <div class="seg lang" id="lang-seg" data-i18n-title="lang.title">
+          <button data-lang="cs">CS</button>
+          <button data-lang="en">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="view-jobs" class="view">
+        <div class="toolbar">
+          <div class="seg" id="status-seg">
+            <button data-status="todo" class="active" data-i18n="seg.todo"></button>
+            <button data-status="new" data-i18n="seg.new"></button>
+            <button data-status="watch" data-i18n="seg.watch"></button>
+            <button data-status="applied" data-i18n="seg.applied"></button>
+            <button data-status="rejected" data-i18n="seg.rejected"></button>
+            <button data-status="all" data-i18n="seg.all"></button>
+          </div>
+          <input id="f-search" type="search" data-i18n-ph="f.search" />
+          <select id="f-sort" data-i18n-title="f.sort.title">
+            <option value="match" data-i18n="f.sort.match"></option>
+            <option value="salary" data-i18n="f.sort.salary"></option>
+            <option value="newest" data-i18n="f.sort.newest"></option>
+          </select>
+          <select id="f-minmatch" data-i18n-title="f.match.title">
+            <option value="0" data-i18n="f.match.any"></option>
+            <option value="40">Match ≥ 40 %</option>
+            <option value="60">Match ≥ 60 %</option>
+            <option value="80">Match ≥ 80 %</option>
+          </select>
+          <select id="f-source" data-i18n-title="f.source.title"></select>
+        </div>
+        <div class="toolbar small">
+          <label><input type="checkbox" id="f-mode-remote" checked /> Remote</label>
+          <label><input type="checkbox" id="f-mode-hybrid" checked /> Hybrid</label>
+          <label><input type="checkbox" id="f-mode-onsite" checked /> Onsite</label>
+          <span class="sep"></span>
+          <label><input type="checkbox" id="f-salary-known" /> <span data-i18n="f.salaryKnown"></span></label>
+          <label><input type="checkbox" id="f-unclear" /> <span data-i18n="f.unclear"></span> <span id="cnt-unclear" class="muted"></span></label>
+          <label><input type="checkbox" id="f-failed" /> <span data-i18n="f.failed"></span> <span id="cnt-failed" class="muted"></span></label>
+          <label><input type="checkbox" id="f-gone" checked /> <span data-i18n="f.gone"></span></label>
+        </div>
+        <div id="jobs-summary" class="muted summary"></div>
+        <div id="jobs-list" class="jobs"></div>
+      </section>
+
+      <section id="view-sources" class="view hidden">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="src.title"></h2>
+            <p class="muted" data-i18n="src.intro"></p>
+          </div>
+          <button id="btn-add-source" class="btn primary" data-i18n="src.add"></button>
+        </div>
+        <div id="source-form-slot"></div>
+        <div id="sources-list" class="sources"></div>
+      </section>
+
+      <section id="view-profile" class="view hidden">
+        <div class="grid2">
+          <div class="panel">
+            <h2 data-i18n="prof.title"></h2>
+            <p class="muted" data-i18n="prof.intro"></p>
+            <div id="profile-editors"></div>
+            <div class="row end"><button id="btn-save-profile" class="btn primary" data-i18n="prof.save"></button></div>
+
+            <h3 data-i18n="prof.import"></h3>
+            <p class="muted" data-i18n="prof.importIntro"></p>
+            <textarea id="import-text" rows="5" data-i18n-ph="prof.importPh"></textarea>
+            <div class="row"><button id="btn-import" class="btn" data-i18n="prof.importBtn"></button></div>
+            <div id="import-result"></div>
+          </div>
+
+          <div class="panel">
+            <h2 data-i18n="flt.title"></h2>
+            <form id="filters-form" class="form"></form>
+            <h2 data-i18n="set.title"></h2>
+            <form id="settings-form" class="form"></form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast hidden"></div>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

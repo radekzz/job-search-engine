@@ -1,0 +1,35 @@
+{
+  "name": "jobs-scraper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Self-hosted job radar for frontend / React Native developers: scans 30+ job boards and company career pages every hour, filters by role, location and salary, scores stack match and dedupes offers across portals.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/index.ts",
+    "start:quiet": "node --disable-warning=ExperimentalWarning src/index.ts --no-open",
+    "scan": "node --disable-warning=ExperimentalWarning src/cli-scan.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --disable-warning=ExperimentalWarning --test src/*.test.ts"
+  },
+  "dependencies": {
+    "cheerio": "^1.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  },
+  "license": "MIT",
+  "keywords": [
+    "job-search",
+    "scraper",
+    "react",
+    "react-native",
+    "frontend",
+    "remote-jobs",
+    "czech",
+    "dashboard"
+  ]
+}

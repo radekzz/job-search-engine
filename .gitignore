@@ -1,0 +1,7 @@
+node_modules/
+# local state: jobs, your profile, statuses, contacts – never commit
+data/
+.env
+.probe/
+*.log
+.DS_Store
