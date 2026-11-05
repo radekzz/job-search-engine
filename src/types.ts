@@ -183,6 +183,8 @@ export interface Filters {
   titleInclude: string[];
   /** Generic titles (developer, engineer...) only pass when the text mentions a core skill. */
   titleGeneric: string[];
+  /** Extra words that let a generic title through (besides Core skills), e.g. "frontend" or "backend". */
+  titleGenericHints: string[];
   titleExclude: string[];
   /** Cities where onsite/hybrid is fine. */
   onsiteCities: string[];
@@ -215,6 +217,8 @@ export interface AppConfig {
   /** Default source ids already offered to this install (so deleted defaults stay deleted). */
   seenDefaultSources?: string[];
   lastAcknowledgedAt?: string;
+  /** Preset this config was created from – the "Defaults" filter button resets to it. */
+  preset?: string;
 }
 
 export interface SourceRunStatus {

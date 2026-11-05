@@ -1,6 +1,6 @@
 # Jobs Scraper
 
-**A self-hosted job radar for frontend and React Native developers.** It scans 30+ job boards and ~50 company career pages every hour. It keeps only the offers that match your role, location and salary, scores how well each one fits your tech stack, and merges the same offer found on different portals into one card. You triage everything in a local dashboard: **Applied**, **Watch** or **Reject**.
+**A self-hosted job radar for software developers.** It scans 30+ job boards and ~50 company career pages every hour. It keeps only the offers that match your role, location and salary, scores how well each one fits your tech stack, and merges the same offer found on different portals into one card. You triage everything in a local dashboard: **Applied**, **Watch** or **Reject**.
 
 Everything runs on your machine. There's no account, no cloud, no AI at runtime, and your data never leaves the `data/` folder.
 
@@ -15,7 +15,7 @@ Everything runs on your machine. There's no account, no cloud, no AI at runtime,
 - **34 sources out of the box:** Czech portals, EU and remote job boards, and the public APIs of applicant tracking systems (Greenhouse, Ashby, Lever, SmartRecruiters, Recruitee) for ~50 companies. You can add any site as RSS, a JSON-LD page or a generic HTML page with CSS selectors.
 - **Hourly scanning:** one scan at startup, then every *N* minutes. State is saved after every source, so you can stop the app at any time and nothing is lost.
 - **Smart filtering:**
-  - **Role:** frontend, React / React Native, mobile, web, tech lead, team lead. Junior, QA, native-only iOS/Android, backend-only and similar roles are filtered out.
+  - **Role:** include / exclude rules on the job title, e.g. Java / Kotlin / backend / fullstack / tech lead in the default preset. Junior, QA, frontend-only and similar roles are filtered out. All rules are editable regexes.
   - **Location:** onsite or hybrid only in your city, remote anywhere if the region allows working from your country.
   - **Salary:** a minimum monthly salary in CZK. Hourly, man-day and yearly rates in any currency are converted using the daily rates from the Czech National Bank.
 - **Stack match (0–100 %):** the listing's technologies are compared with your profile, where *core* skills count ×3, *strong* ×2 and *familiar* ×1, and *avoid* skills lower the score. You can paste your CV or LinkedIn "Skills" text to import technologies.
@@ -90,7 +90,8 @@ Changing the profile or filters re-evaluates all stored offers immediately.
 | Group | Sources |
 | --- | --- |
 | Czech / Slovak portals | Jobs.cz, Prace.cz, Profesia.cz, Profesia.sk, StartupJobs.cz (via sitemap + JSON-LD), Jobstack.it, Easy-práce.cz, JobsContact.cz |
-| EU & remote boards | No Fluff Jobs, Djinni, Bulldogjob.pl, EuroTechJobs, Landing.jobs, Arbeitnow, Remote OK, Remotive, We Work Remotely (RSS), Himalayas, Jobicy, Working Nomads, Remote Rocketship, Remote.com, Arc.dev, FrontendEngineers.com, ReactJobs.io, JS Guru Jobs |
+| EU & remote boards | No Fluff Jobs, Djinni, Bulldogjob.pl, EuroTechJobs, Landing.jobs, Arbeitnow, Remote OK, Remotive, We Work Remotely (RSS), Himalayas, Jobicy, Working Nomads, Remote Rocketship, Remote.com, Arc.dev |
+| Frontend-only boards | FrontendEngineers.com, ReactJobs.io, JS Guru Jobs (on in the `react-native` preset, off in `java-fullstack`) |
 | Company career pages (ATS) | Greenhouse, Ashby, Lever, SmartRecruiters, Recruitee. One URL = one company board, e.g. `https://jobs.ashbyhq.com/<company>`. |
 | Opt-in | **LinkedIn** guest search (disabled by default, see [Responsible use](#responsible-use)), **Jooble** official API (needs `JOOBLE_API_KEY`) |
 | Generic | RSS/Atom feed · page embedding schema.org `JobPosting` · any server-rendered page with CSS selectors |
@@ -110,7 +111,16 @@ To add a new portal in code, see [architecture.md](architecture.md#adding-a-new-
 
 ## Configuration
 
-Everything is editable in the dashboard and saved to `data/config.json`. The defaults are an **example profile**: a senior React / React Native / TypeScript developer in Brno, Czech Republic, with a minimum of 100,000 CZK per month. Change them to yours.
+Everything is editable in the dashboard and saved to `data/config.json`.
+
+The defaults come from an **example preset** in `src/config.ts`:
+
+| Preset | Profile | Search URLs |
+| --- | --- | --- |
+| `java-fullstack` *(default)* | Senior fullstack Java developer: Java, Spring Boot, SQL (core), Kotlin, Hibernate, Kafka, Docker, Kubernetes… | `java`, `spring boot`, `fullstack`, backend boards |
+| `react-native` | Senior React / React Native / TypeScript developer | `react`, `react native`, `frontend`, plus frontend-only boards |
+
+Both are set for Brno, Czech Republic, with a minimum of 100,000 CZK per month. Switch the preset with `DEFAULT_PRESET` in `src/config.ts` **before the first start** (it only shapes a fresh `data/config.json`), or simply edit your profile, filters and source URLs in the dashboard. Adding your own preset is one object in `PRESETS`.
 
 | Setting | Default | Meaning |
 | --- | --- | --- |

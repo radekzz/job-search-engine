@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
-import { defaultConfig, getConfig, saveConfig } from './config.ts';
+import { defaultConfig, getConfig, PRESETS, saveConfig, type PresetName } from './config.ts';
 import { extractTagsFromText, KNOWN_TECH } from './match.ts';
 import { formatSalary } from './salary.ts';
 import { onScanEvent, rescheduleScanner, runEnrich, runScan, state } from './scanner.ts';
@@ -218,6 +218,7 @@ async function handleApi(req: http.IncomingMessage, res: http.ServerResponse, ur
       hideUnknownSalary: Boolean(b.hideUnknownSalary),
       titleInclude: strList(b.titleInclude, 'titleInclude'),
       titleGeneric: strList(b.titleGeneric, 'titleGeneric'),
+      titleGenericHints: b.titleGenericHints === undefined ? (cfg.filters.titleGenericHints ?? []) : strList(b.titleGenericHints, 'titleGenericHints'),
       titleExclude: strList(b.titleExclude, 'titleExclude'),
       onsiteCities: strList(b.onsiteCities, 'onsiteCities'),
       remoteAllowed: strList(b.remoteAllowed, 'remoteAllowed'),
@@ -259,7 +260,9 @@ async function handleApi(req: http.IncomingMessage, res: http.ServerResponse, ur
   }
 
   if (method === 'POST' && url.pathname === '/api/defaults/filters') {
-    saveConfig({ ...cfg, filters: defaultConfig().filters });
+    // reset to the preset this config was created from (older configs: the current default preset)
+    const name = cfg.preset && cfg.preset in PRESETS ? (cfg.preset as PresetName) : undefined;
+    saveConfig({ ...cfg, filters: defaultConfig(name).filters });
     reevaluateAll(getConfig());
     return send(res, 200, publicState(getConfig()));
   }

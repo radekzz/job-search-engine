@@ -36,7 +36,7 @@ scanner.runScan()
 | File | Responsibility |
 | --- | --- |
 | `src/types.ts` | Domain types (`RawJob`, `Job`, `SourceConfig`, `AppConfig`, `Enrichment`…) |
-| `src/config.ts` | Example profile, filters, default sources; load/save with a per-section merge of defaults; one-off migration of new default sources |
+| `src/config.ts` | Example presets (`java-fullstack`, `react-native`: profile, title rules, search URL overrides) selected by `DEFAULT_PRESET`; shared filters and default sources; load/save with a per-section merge of defaults; one-off migration of new default sources |
 | `src/fsutil.ts` | `data/` paths, atomic JSON writes, backup of corrupted files |
 | `src/http.ts` | `fetch` with UA, timeout, retries (429/5xx), per-host politeness gaps, SSRF guard (manual redirects, every hop validated) |
 | `src/salary.ts` | Salary text parser (`k`, `tis.`, ranges, periods), ČNB exchange rates (12 h cache), conversion to CZK/month |

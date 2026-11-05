@@ -193,6 +193,8 @@ const D = {
   'flt.include': ['Název pozice musí obsahovat (regex, 1 na řádek)', 'Job title must contain (regex, one per line)'],
   'flt.generic': ['Obecné názvy', 'Generic titles'],
   'flt.generic.help': ['Projdou jen když text zmiňuje Core technologii (např. „Software Engineer" + React).', 'Pass only when the text mentions a Core technology (e.g. "Software Engineer" + React).'],
+  'flt.genericHints': ['Další slova pro obecné názvy', 'Extra words for generic titles'],
+  'flt.genericHints.help': ['Kromě Core technologií pustí obecný název i zmínka těchto slov (např. „backend").', 'Besides Core skills, these words also let a generic title through (e.g. "backend").'],
   'flt.exclude': ['Vyřadit názvy obsahující (regex)', 'Exclude titles containing (regex)'],
   'flt.allowed': ['Remote OK pro regiony (regex)', 'Remote OK for regions (regex)'],
   'flt.allowed.help': ['Shoda v lokalitě remote nabídky = jde dělat z tvé země.', 'A match in a remote offer\'s location = you can work from your country.'],

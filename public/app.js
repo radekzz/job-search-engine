@@ -829,6 +829,7 @@ function renderFiltersForm() {
   const [cityL, city] = linesField(t('flt.cities'), t('flt.cities.help'), f.onsiteCities);
   const [incL, inc] = linesField(t('flt.include'), '', f.titleInclude);
   const [genL, gen] = linesField(t('flt.generic'), t('flt.generic.help'), f.titleGeneric);
+  const [hintL, hint] = linesField(t('flt.genericHints'), t('flt.genericHints.help'), f.titleGenericHints ?? []);
   const [excL, exc] = linesField(t('flt.exclude'), '', f.titleExclude);
   const [allowL, allow] = linesField(t('flt.allowed'), t('flt.allowed.help'), f.remoteAllowed);
   const [blockL, block] = linesField(t('flt.blocked'), '', f.remoteBlocked);
@@ -839,6 +840,7 @@ function renderFiltersForm() {
     cityL,
     incL,
     genL,
+    hintL,
     excL,
     allowL,
     blockL,
@@ -874,6 +876,7 @@ function renderFiltersForm() {
             onsiteCities: city.getLines(),
             titleInclude: inc.getLines(),
             titleGeneric: gen.getLines(),
+            titleGenericHints: hint.getLines(),
             titleExclude: exc.getLines(),
             remoteAllowed: allow.getLines(),
             remoteBlocked: block.getLines(),

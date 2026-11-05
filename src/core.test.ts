@@ -7,7 +7,8 @@ import { computeMatch } from './match.ts';
 import { parseSalary } from './salary.ts';
 import type { RawJob } from './types.ts';
 
-const cfg = defaultConfig();
+// tests use the react-native preset explicitly – independent of DEFAULT_PRESET
+const cfg = defaultConfig('react-native');
 const job = (over: Partial<RawJob>): RawJob => ({ sourceJobId: '1', url: 'https://x', title: 'React Developer', ...over });
 
 test('parseSalary: CZK ranges, "Kč" is not a k-suffix', () => {
@@ -176,4 +177,35 @@ test('SSRF guard does not block public addresses (regression)', async () => {
   const { isPrivateIp } = await import('./http.ts');
   for (const ip of ['8.8.8.8', '1.1.1.1', '185.88.1.1', '2606:4700::1111', '2a00:1450:4014:80b::200e']) assert.equal(isPrivateIp(ip), false, ip);
   for (const ip of ['127.0.0.1', '::ffff:7f00:1', '::ffff:127.0.0.1', '::127.0.0.1', '64:ff9b::7f00:1', 'fe80::1', 'fd12::1', '::1', '::']) assert.equal(isPrivateIp(ip), true, ip);
+});
+
+test('java-fullstack preset: relevance and stack match', async () => {
+  const java = defaultConfig('java-fullstack');
+  assert.ok(isRelevant(job({ title: 'Senior Java Developer' }), java));
+  assert.ok(isRelevant(job({ title: 'Fullstack Developer (Java / Angular)' }), java));
+  assert.ok(isRelevant(job({ title: 'Backend Engineer – Kotlin, Spring Boot' }), java));
+  assert.ok(isRelevant(job({ title: 'Software Engineer', description: 'Java 21, Spring Boot, PostgreSQL' }), java));
+  assert.ok(!isRelevant(job({ title: 'React Developer' }), java));
+  assert.ok(!isRelevant(job({ title: 'Senior Frontend Developer' }), java));
+  assert.ok(!isRelevant(job({ title: 'React Native Developer' }), java));
+  assert.ok(!isRelevant(job({ title: 'Junior Java Developer' }), java));
+  // review regressions: JavaScript / mobile / frontend must not pass through generic titles
+  assert.ok(!isRelevant(job({ title: 'Senior JavaScript Developer' }), java));
+  assert.ok(!isRelevant(job({ title: 'Mobile Developer' }), java));
+  assert.ok(!isRelevant(job({ title: 'Software Engineer', description: 'React Native mobile app, frontend team' }), java));
+  assert.ok(isRelevant(job({ title: 'Software Engineer', description: 'backend services in Go… and Java 21' }), java));
+  // …and real Java roles with "customer" / "support" / "data" in the title stay
+  assert.ok(isRelevant(job({ title: 'Java Software Engineer – Customer Platform' }), java));
+  assert.ok(isRelevant(job({ title: 'Java Developer - Production Support' }), java));
+  assert.ok(isRelevant(job({ title: 'Java Data Engineer' }), java));
+  const m = computeMatch(job({ title: 'Senior Java Developer', description: 'Spring Boot, Hibernate, Kafka, Docker, Kubernetes, SQL' }), java.profile);
+  assert.ok((m.score ?? 0) >= 80, `expected ≥80, got ${m.score}`);
+  const r = computeMatch(job({ title: 'Frontend Developer', description: 'React, Redux, Next.js' }), java.profile);
+  assert.ok((r.score ?? 100) < 40, `expected <40, got ${r.score}`);
+  // niche frontend boards are off in this preset
+  const { DEFAULT_SOURCES, sourcesFor } = await import('./config.ts');
+  assert.equal(sourcesFor('java-fullstack').find((s) => s.id === 'reactjobs')?.enabled, false);
+  assert.ok(sourcesFor('java-fullstack').find((s) => s.id === 'jobscz')!.urls[0].includes('java'));
+  assert.ok(sourcesFor('react-native').find((s) => s.id === 'jobscz')!.urls[0].includes('react'));
+  assert.ok(DEFAULT_SOURCES.length === sourcesFor('react-native').length);
 });

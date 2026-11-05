@@ -49,7 +49,12 @@ const TECH: Record<string, RegExp> = {
   PHP: /\bphp\b|laravel|symfony|nette/,
   WordPress: /wordpress/,
   Python: /\bpython\b|django|flask|fastapi/,
-  Java: /\bjava\b(?!script)|spring boot/,
+  Java: /\bjava\b(?!script)/,
+  'Spring Boot': /spring[\s-]?boot|\bspring\b/,
+  Hibernate: /hibernate|\bjpa\b/,
+  Kafka: /kafka/,
+  Microservices: /micro-?services?/,
+  'Maven / Gradle': /\bmaven\b|gradle/,
   Kotlin: /kotlin/,
   Swift: /\bswift\b|swiftui/,
   'Objective-C': /objective-?c/,
@@ -65,6 +70,7 @@ const TECH: Record<string, RegExp> = {
   Sentry: /sentry/,
   'Mobile': /mobile|mobiln/,
   'Frontend': /front[- ]?end/,
+  'Backend': /back[- ]?end/,
   'Fullstack': /full[- ]?stack/,
   'Architecture': /architect/,
   'Code review': /code review/,
@@ -76,13 +82,14 @@ const TECH: Record<string, RegExp> = {
 };
 
 /** Generic tags we detect but don't count into the score denominator (too vague). */
-const NEUTRAL = new Set(['Git', 'REST', 'HTML', 'CSS', 'Mobile', 'Frontend', 'Fullstack', 'Architecture', 'Code review', 'Fintech']);
+const NEUTRAL = new Set(['Git', 'REST', 'HTML', 'CSS', 'Mobile', 'Frontend', 'Backend', 'Fullstack', 'Architecture', 'Code review', 'Fintech']);
 
 export const KNOWN_TECH = Object.keys(TECH);
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-function patternFor(tag: string): RegExp {
+/** Regex for a profile tag: the dictionary pattern for known tech (e.g. Java ≠ JavaScript), else a word-bounded literal. */
+export function patternFor(tag: string): RegExp {
   const known = Object.keys(TECH).find((k) => k.toLowerCase() === tag.toLowerCase());
   if (known) return TECH[known];
   // Custom manual tag, e.g. "Reanimated" -> word-ish literal match

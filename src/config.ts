@@ -14,7 +14,8 @@ const li = (keywords: string, location: string, remoteOnly = false) =>
     ...(remoteOnly ? { f_WT: '2' } : {}),
   }).toString();
 
-export const DEFAULT_SOURCES: SourceConfig[] = [
+/** Source list with the react-native preset's search URLs; other presets override per source id. */
+const BASE_SOURCES: SourceConfig[] = [
   {
     id: 'jobscz',
     name: 'Jobs.cz',
@@ -386,16 +387,22 @@ export const DEFAULT_SOURCES: SourceConfig[] = [
   },
 ];
 
-/** Default source ids of the first release – configs created then have no seenDefaultSources. */
-const ORIGINAL_DEFAULT_IDS = [
-  'jobscz', 'pracecz', 'profesia', 'linkedin', 'nofluffjobs', 'remoteok',
-  'remotive', 'weworkremotely', 'himalayas', 'jobicy', 'arbeitnow',
-];
+// ------------------------------------------------------------------ example presets
+// The default profile, title rules and search URLs come from one preset. Pick it with DEFAULT_PRESET;
+// everything stays editable in the dashboard afterwards (and is saved to data/config.json).
+type Preset = {
+  profile: AppConfig['profile'];
+  titleInclude: string[];
+  titleGeneric: string[];
+  titleGenericHints: string[];
+  titleExclude: string[];
+  /** per source id: replace URLs and/or enabled flag of BASE_SOURCES */
+  sources: Record<string, Partial<Pick<SourceConfig, 'urls' | 'enabled'>>>;
+};
 
-export function defaultConfig(): AppConfig {
-  return {
-    version: CONFIG_VERSION,
-    // Example profile (senior React / React Native / TypeScript dev) – edit it in the dashboard (Profil & filtry).
+export const PRESETS = {
+  'react-native': {
+    // senior React / React Native / TypeScript developer
     profile: {
       core: ['React Native', 'React', 'TypeScript', 'Expo', 'JavaScript'],
       strong: [
@@ -417,74 +424,213 @@ export function defaultConfig(): AppConfig {
       familiar: ['AWS', 'Vue', 'PHP', 'WordPress', 'HTML', 'CSS', 'Jest', 'Next.js', 'Fullstack', 'Fintech'],
       avoid: ['Angular', 'Java', 'C#', '.NET', 'Flutter'],
     },
+    titleInclude: [
+      'react',
+      'front-?end',
+      'front end',
+      '\\bmobil', // not "automobilový"
+      'mobile',
+      'javascript',
+      'typescript',
+      'web developer',
+      'web dev',
+      'webov',
+      'full-?stack',
+      'full stack',
+      'tech(nical)? lead',
+      'team lead',
+      'team leader',
+      'vedoucí týmu',
+      'technický vedoucí',
+      'engineering manager',
+      'head of (frontend|mobile|engineering)',
+      'lead (developer|engineer)',
+      'expo',
+    ],
+    titleGeneric: ['developer', 'engineer', 'vývojář', 'vývojářka', 'programátor', 'programmer', 'software'],
+    titleGenericHints: ['frontend', 'front-end', 'mobile'],
+    titleExclude: [
+      'junior',
+      'intern',
+      'internship',
+      'stáž',
+      'trainee',
+      'absolvent',
+      '\\bqa\\b',
+      'tester',
+      'test automation',
+      '^(?!.*react).*android',
+      '^(?!.*react).*\\bios\\b',
+      '^(?!.*react).*swift',
+      '^(?!.*react).*kotlin',
+      'flutter',
+      '\\bjava\\b(?!script)',
+      '\\.net',
+      'c#',
+      'python',
+      'golang',
+      'devops',
+      'data (engineer|scientist|analyst)',
+      '\\bsap\\b',
+      'salesforce',
+      'embedded',
+      'designer',
+      '^(?!.*(front|full|react|mobile)).*\\bback[- ]?end\\b', // backend-only
+      '\\b(ml|machine learning|data|ai|llm)\\s+(engineer|scientist|researcher)',
+      '^(?!.*(front|mobile|react|web|ui\\b)).*\\b(sre|site reliability|devsecops|security|infrastructure|platform|cloud|network|firmware|hardware)\\s+(engineer|developer|lead)',
+      'solutions? (engineer|architect|consultant)',
+      'support engineer',
+      'grafik',
+      'obchodník',
+      'bankéř',
+      'prodej',
+      'účetní',
+      'marketing',
+      'sales',
+      'customer',
+      'support',
+    ],
+    sources: {}, // BASE_SOURCES already carry this preset's URLs
+  },
+  'java-fullstack': {
+    // senior fullstack Java developer (Java / Spring backend, some Angular / TypeScript)
+    profile: {
+      core: ['Java', 'Spring Boot', 'SQL'],
+      strong: ['Kotlin', 'Hibernate', 'REST', 'Microservices', 'Docker', 'Kubernetes', 'Kafka', 'AWS', 'CI/CD', 'Maven / Gradle', 'Git', 'Backend', 'Fullstack', 'Architecture', 'Code review'],
+      familiar: ['TypeScript', 'Angular', 'JavaScript', 'Vue', 'GraphQL', 'MongoDB', 'Azure', 'GCP', 'Python'],
+      avoid: ['PHP', 'WordPress', 'C#', '.NET'],
+    },
+    titleInclude: [
+      '\\bjava\\b(?!script)',
+      'kotlin',
+      '\\bspring\\b',
+      'full-?stack',
+      'full stack',
+      'back-?end',
+      'back end',
+      'tech(nical)? lead',
+      'team lead',
+      'team leader',
+      'vedoucí týmu',
+      'technický vedoucí',
+      'engineering manager',
+      'head of (backend|engineering)',
+      'lead (developer|engineer)',
+      '(software|solution|system) architect',
+      'architekt',
+    ],
+    titleGeneric: ['developer', 'engineer', 'vývojář', 'vývojářka', 'programátor', 'programmer', 'software'],
+    titleGenericHints: ['backend', 'back-end', 'fullstack', 'full-stack', 'microservices'],
+    titleExclude: [
+      'junior',
+      'intern',
+      'internship',
+      'stáž',
+      'trainee',
+      'absolvent',
+      '\\bqa\\b',
+      'tester',
+      'test automation',
+      'android',
+      '\\bios\\b',
+      'swift',
+      'flutter',
+      'react native',
+      '^(?!.*(full|java|back|kotlin)).*front-?end', // frontend-only
+      '^(?!.*(full|java|back|kotlin)).*\\breact\\b', // React-only
+      '\\.net',
+      'c#',
+      '\\bphp\\b',
+      'golang',
+      '^(?!.*java).*python',
+      '\\bsap\\b',
+      'salesforce',
+      'embedded',
+      'designer',
+      '^(?!.*(java|kotlin|spring|scala)).*\\b(ml|machine learning|data|ai|llm)\\s+(engineer|scientist|researcher)',
+      '^(?!.*(java|kotlin|spring|back|full)).*\\b(sre|site reliability|devsecops|security|infrastructure|platform|cloud|network|firmware|hardware)\\s+(engineer|developer|lead)',
+      'solutions? (engineer|consultant)',
+      '^(?!.*(java|kotlin|spring)).*support engineer',
+      'grafik',
+      'obchodník',
+      'bankéř',
+      'prodej',
+      'účetní',
+      'marketing',
+      'sales',
+      '^(?!.*(java|kotlin|spring|backend|fullstack)).*customer',
+      '^(?!.*(java|kotlin|spring|backend|fullstack)).*support',
+    ],
+    sources: {
+      jobscz: { urls: ['https://www.jobs.cz/prace/brno/?q%5B%5D=java', 'https://www.jobs.cz/prace/brno/?q%5B%5D=fullstack', 'https://www.jobs.cz/prace/?q%5B%5D=spring%20boot', 'https://www.jobs.cz/prace/?q%5B%5D=java&q%5B%5D=remote'] },
+      pracecz: { urls: ['https://www.prace.cz/nabidky/brno/?q=java', 'https://www.prace.cz/nabidky/brno/?q=fullstack', 'https://www.prace.cz/nabidky/?q=spring%20boot'] },
+      profesia: { urls: ['https://www.profesia.cz/prace/?search_anywhere=java', 'https://www.profesia.cz/prace/?search_anywhere=spring%20boot'] },
+      linkedin: {
+        urls: [
+          li('Java', 'Brno, South Moravia, Czechia'),
+          li('Fullstack Java', 'Brno, South Moravia, Czechia'),
+          li('Java', 'Czechia', true),
+          li('Java Spring', 'European Union', true),
+          li('Kotlin', 'European Union', true),
+          li('Tech Lead Java', 'Czechia'),
+        ],
+      },
+      nofluffjobs: { urls: ['https://nofluffjobs.com/cz/Java?criteria=city%3Dbrno,remote', 'https://nofluffjobs.com/cz/fullstack?criteria=city%3Dbrno,remote', 'https://nofluffjobs.com/cz/backend?criteria=city%3Dbrno,remote'] },
+      remoteok: { urls: ['https://remoteok.com/api?tag=java', 'https://remoteok.com/api?tag=kotlin'] },
+      remotive: { urls: ['https://remotive.com/api/remote-jobs?category=software-dev&search=java', 'https://remotive.com/api/remote-jobs?category=software-dev&search=spring'] },
+      weworkremotely: { urls: ['https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss'] },
+      himalayas: { urls: ['https://himalayas.app/jobs/api/search?q=java', 'https://himalayas.app/jobs/api/search?q=spring%20boot'] },
+      jobicy: { urls: ['https://jobicy.com/api/v2/remote-jobs?count=50&tag=java'] },
+      jobstack: { urls: ['https://www.jobstack.it/it-jobs/java-developer', 'https://www.jobstack.it/it-jobs/full-stack-developer'] },
+      easyprace: { urls: ['https://www.easy-prace.cz/java-vyvojar', 'https://www.easy-prace.cz/brno/java-vyvojar'] },
+      jobscontact: { urls: ['https://www.jobscontact.cz/prace?jobFilterFulltext%5B0%5D=java'] },
+      reactjobs: { enabled: false }, // React-only board
+      jsguru: { enabled: false }, // JavaScript-only board
+      frontendengineers: { enabled: false }, // frontend-only board
+      djinni: { urls: ['https://djinni.co/jobs/?primary_keyword=Java', 'https://djinni.co/jobs/?primary_keyword=Kotlin'] },
+      remoterocketship: { urls: ['https://www.remoterocketship.com/?jobTitle=java', 'https://www.remoterocketship.com/?jobTitle=spring'] },
+      remotecom: { urls: ['https://remote.com/jobs/all?query=java', 'https://remote.com/jobs/all?query=spring%20boot'] },
+      arc: { urls: ['https://arc.dev/remote-jobs/java', 'https://arc.dev/remote-jobs/spring-boot'] },
+      bulldog: { urls: ['https://bulldogjob.pl/companies/jobs/s/skills,Java', 'https://bulldogjob.pl/companies/jobs/s/skills,Spring'] },
+      eurotechjobs: { urls: ['https://www.eurotechjobs.com/job_search/keyword/java'] },
+      profesiask: { urls: ['https://www.profesia.sk/praca/?search_anywhere=java'] },
+      jooble: { urls: ['https://jooble.org/api/?keywords=java&location=Brno', 'https://jooble.org/api/?keywords=java&location=Czech%20Republic'] },
+    },
+  },
+} satisfies Record<string, Preset>;
+
+export type PresetName = keyof typeof PRESETS;
+
+/** Preset used for new installs and the "Defaults" button in the filters. */
+export const DEFAULT_PRESET: PresetName = 'java-fullstack';
+
+export function sourcesFor(name: PresetName): SourceConfig[] {
+  const overrides: Preset['sources'] = PRESETS[name].sources;
+  return BASE_SOURCES.map((s) => ({ ...s, ...overrides[s.id] }));
+}
+
+export const DEFAULT_SOURCES = sourcesFor(DEFAULT_PRESET);
+
+/** Default source ids of the first release – configs created then have no seenDefaultSources. */
+const ORIGINAL_DEFAULT_IDS = [
+  'jobscz', 'pracecz', 'profesia', 'linkedin', 'nofluffjobs', 'remoteok',
+  'remotive', 'weworkremotely', 'himalayas', 'jobicy', 'arbeitnow',
+];
+
+export function defaultConfig(name: PresetName = DEFAULT_PRESET): AppConfig {
+  const preset: Preset = PRESETS[name];
+  return {
+    version: CONFIG_VERSION,
+    preset: name,
+    // Example profile – edit it in the dashboard (Profile & filters). See PRESETS / DEFAULT_PRESET.
+    profile: preset.profile,
     filters: {
       minSalaryCzkMonth: 100_000,
       hideUnknownSalary: false,
-      titleInclude: [
-        'react',
-        'front-?end',
-        'front end',
-        '\\bmobil', // not "automobilový"
-        'mobile',
-        'javascript',
-        'typescript',
-        'web developer',
-        'web dev',
-        'webov',
-        'full-?stack',
-        'full stack',
-        'tech(nical)? lead',
-        'team lead',
-        'team leader',
-        'vedoucí týmu',
-        'technický vedoucí',
-        'engineering manager',
-        'head of (frontend|mobile|engineering)',
-        'lead (developer|engineer)',
-        'expo',
-      ],
-      titleGeneric: ['developer', 'engineer', 'vývojář', 'vývojářka', 'programátor', 'programmer', 'software'],
-      titleExclude: [
-        'junior',
-        'intern',
-        'internship',
-        'stáž',
-        'trainee',
-        'absolvent',
-        '\\bqa\\b',
-        'tester',
-        'test automation',
-        '^(?!.*react).*android',
-        '^(?!.*react).*\\bios\\b',
-        '^(?!.*react).*swift',
-        '^(?!.*react).*kotlin',
-        'flutter',
-        '\\bjava\\b(?!script)',
-        '\\.net',
-        'c#',
-        'python',
-        'golang',
-        'devops',
-        'data (engineer|scientist|analyst)',
-        '\\bsap\\b',
-        'salesforce',
-        'embedded',
-        'designer',
-        '^(?!.*(front|full|react|mobile)).*\\bback[- ]?end\\b', // backend-only
-        '\\b(ml|machine learning|data|ai|llm)\\s+(engineer|scientist|researcher)',
-        '^(?!.*(front|mobile|react|web|ui\\b)).*\\b(sre|site reliability|devsecops|security|infrastructure|platform|cloud|network|firmware|hardware)\\s+(engineer|developer|lead)',
-        'solutions? (engineer|architect|consultant)',
-        'support engineer',
-        'grafik',
-        'obchodník',
-        'bankéř',
-        'prodej',
-        'účetní',
-        'marketing',
-        'sales',
-        'customer',
-        'support',
-      ],
+      titleInclude: preset.titleInclude,
+      titleGeneric: preset.titleGeneric,
+      titleGenericHints: preset.titleGenericHints,
+      titleExclude: preset.titleExclude,
       onsiteCities: ['Brno'],
       remoteAllowed: [
         'worldwide',
@@ -573,8 +719,8 @@ export function defaultConfig(): AppConfig {
       maxEnrichPerScan: 0,
       language: defaultLang(),
     },
-    sources: DEFAULT_SOURCES,
-    seenDefaultSources: DEFAULT_SOURCES.map((s) => s.id),
+    sources: sourcesFor(name),
+    seenDefaultSources: BASE_SOURCES.map((s) => s.id),
   };
 }
 

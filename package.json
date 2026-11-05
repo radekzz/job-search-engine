@@ -2,7 +2,7 @@
   "name": "jobs-scraper",
   "version": "1.0.0",
   "private": true,
-  "description": "Self-hosted job radar for frontend / React Native developers: scans 30+ job boards and company career pages every hour, filters by role, location and salary, scores stack match and dedupes offers across portals.",
+  "description": "Self-hosted job radar for software developers: scans 30+ job boards and company career pages every hour, filters by role, location and salary, scores stack match against your profile and dedupes offers across portals.",
   "type": "module",
   "engines": {
     "node": ">=22.18"
@@ -25,10 +25,10 @@
   "keywords": [
     "job-search",
     "scraper",
-    "react",
-    "react-native",
-    "frontend",
+    "job-board",
     "remote-jobs",
+    "java",
+    "react",
     "czech",
     "dashboard"
   ]

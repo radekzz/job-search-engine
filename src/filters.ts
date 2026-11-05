@@ -1,5 +1,5 @@
 import { formatSalary, toCzkMonth } from './salary.ts';
-import { jobText } from './match.ts';
+import { jobText, patternFor } from './match.ts';
 import type { AppConfig, Evaluation, Filters, Profile, RawJob, Verdict, WorkMode } from './types.ts';
 
 const reCache = new Map<string, RegExp | null>();
@@ -28,9 +28,9 @@ const EU_WIDE_RE =
   /(?:anywhere|any country|remote(?:ly)?|work from|based) (?:in|within|across|from) (?:the )?(?:eu\b|europe|emea|european union|cet)|(?:eu|europe|emea)[- ](?:wide|based|remote)|remote[^.\n]{0,30}\b(?:eu|europe|emea)\b|european time ?zones?|cet (?:time ?zone|±|\+\/-)/i;
 
 /** Core-skill presence – used to accept generic titles like "Software Engineer". */
-function mentionsCore(text: string, profile: Profile): boolean {
-  const core = [...profile.core, 'frontend', 'front-end', 'mobile'];
-  return core.some((c) => text.includes(c.toLowerCase()));
+function mentionsCore(text: string, profile: Profile, hints: string[]): boolean {
+  // dictionary patterns / word boundaries – "java" must not match "javascript"
+  return profile.core.some((c) => patternFor(c).test(text)) || anyMatch(hints.map((h) => `\\b${h}\\b`), text) !== undefined;
 }
 
 /** Cheap pre-filter on title/tags – decides if a listing is worth storing at all. */
@@ -39,7 +39,7 @@ export function isRelevant(job: RawJob, cfg: AppConfig): boolean {
   const f = cfg.filters;
   if (anyMatch(f.titleExclude, title)) return false;
   if (anyMatch(f.titleInclude, title)) return true;
-  if (anyMatch(f.titleGeneric, title)) return mentionsCore(jobText(job), cfg.profile);
+  if (anyMatch(f.titleGeneric, title)) return mentionsCore(jobText(job), cfg.profile, f.titleGenericHints ?? []);
   return false;
 }
 
